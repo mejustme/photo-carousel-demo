@@ -1,7 +1,9 @@
-# gulp-project
-为了快速开始一个工程
-此gulp项目有的基本目录结构与配置
 
+# 轮播demo
+
+###很精彩的轮播代码给初学者解析
+
+-
 ## bower使用
 ```
 bower install jquery --save  （不加不会写入文件，会下载）
