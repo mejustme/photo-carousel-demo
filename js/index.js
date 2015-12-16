@@ -10,7 +10,6 @@
     var CURRENT = 0;//当前图片索引
     var NEXT = CURRENT + 1;//下一张图片的索引
 
-
     //封装原生DOM查找操作，你现在应该明白jQuery的$是什么了，
     // 它就是封装了更复杂的操作查找功能，当然这么返回的是原生DOM元素
     // jQuery中返回的是封装了DOM元素的jQuery对象
@@ -38,24 +37,25 @@
         var offset = Math.floor(width/count); // 注意js除法，不是C/C++中的取整，可以查看下Math.floor/ceil/round()方法区别，以及常用的a.toFixed()
         var tmpCurrent = CURRENT;
         var step = function () {
-            if (tmpCurrent !== CURRENT) {   //注意 == 与 = 的区别
+            if (tmpCurrent !== CURRENT) {   //注意,此处的意义是，当用户点击摸个进度条，修改了CURRENT,那么要立即复原之前运动的进度条到0px，注意 !== 与 != 的区别
                 prcss.style.width = '0px'; //浏览器查看元素DOM元素style属性有哪些属性，$.css()本质就是操作它
+               // return;  //原本代码，注意此处return；退出当前函数，但是循环函数还是一直在！！！！，
+               //  你可以 多次点击一个进度条，看以后每次到达这个的进度条进度条会变得很快，因为多个历史多少循环函数叠加的效果，故改为下面的更应该
+                clearInterval(intervalId); //修正代码，清除原来的事件，用户多次点击一个进度条后，改进度条掉速度不会改变
                 return;
             }
             var des = getNum(prcss.style.width) + offset;
             if (des < width) {
                 prcss.style.width = getNum(prcss.style.width) + offset + 'px'; //没个intrvl时间执行一次增加一次
-            } else if (des == width) {
+            } else if (des = width) {    //注意看！这里是=赋值，而不是==比较值大小。因为des+offset这次小于width,下次又大于width，值是间断的，很可能不等于
                 clearInterval(intervalId);  //当一个进度条达到终点，取消掉循环函数
-                prcss.style.width = '0px';//恢复默认值
+                prcss.style.width = '0px';//看！当进度条变成最大值，会恢复最小值
                 PREV = CURRENT;//调整全局变量，之前的图片序号
                 CURRENT = NEXT;//现在期望展现的图片序号
                 NEXT++;
                 NEXT = NEXT%NUMBER; //%取余操作符，循环取余
                 if (callback)
                     callback();  //当进度条完成时，进行下个图片的移动函数，通过参数callback传入
-            } else {
-                prcss.style.width = width + 'px';
             }
         }
         //step函数一直setInterval(),间隔时间运动，轮播实时进度条每xx毫秒移动offset大小
